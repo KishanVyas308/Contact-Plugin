@@ -100,9 +100,3 @@ This project is licensed under the MIT License.
 ## Author
 
 **Kishan Vyas**
-
----
-
-> **Note:**  
-> This README was generated based on available source and may not cover all customizations or features implemented in the plugin.  
-> [Browse the full source code on GitHub](https://github.com/KishanVyas308/Contact-Plugin/search?type=code)
