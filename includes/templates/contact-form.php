@@ -1,3 +1,5 @@
+<?php if(get_plugin_options('contact_plugin_active'))  :?>
+
 <link rel="stylesheet" href="https://classless.de/classless.css">
 
 <div id="form_response"></div>
@@ -53,3 +55,13 @@
             });
     });
 </script>
+
+
+<?php else : ?>
+
+    <div class="error">
+        <p><?php esc_html_e('Contact form is not active', 'contact-plugin'); ?></p>
+    </div>
+
+
+<?php endif; ?>

@@ -73,17 +73,21 @@ function create_submission_page()
 
         'public' => true,
         'has_archive' => true,
+        'menu_position' => 30,
+        'publicly_queryable' => false,
         'labels' => [
             'name' => 'Submissions',
             'singular_name' => 'Submission',
+            'edit_item' => 'View Submission',
         ],
         'capabilities' => [
             'create_posts' => 'do_not_allow', 
         ],
-        // 'supports' => [
-        //     'custom-fields',
-        // ],
+        'supports' => false,
         'capability_type' => 'post',
+        'capabilities' => [
+            'create_posts' => 'do_not_allow', // Disable post creation
+        ],
         'map_meta_cap' => true,
 
 
@@ -124,6 +128,12 @@ function handle_enquiry($request)
     $admin_email = get_bloginfo('admin_email');
     $admin_name = get_bloginfo('name');
 
+    $recipient_email = get_plugin_options('contact_plugin_recipients');
+
+    if ( !$recipient_email ) {
+        $recipient_email = $admin_email;
+    }
+
     $header[] =  "From: {$admin_name} <{$admin_email}>";
     $header[] = "Reply-To: {$params['name']} <{$params['email']}>";
     $header[] = "Content-Type: text/html; charset=UTF-8";
@@ -155,10 +165,20 @@ function handle_enquiry($request)
     add_post_meta($post_id, 'message', $params['message']);
 
     // Send the email
-    wp_mail($admin_email, $subject, $message, $header);
+    wp_mail($recipient_email, $subject, $message, $header);
+
+
+    // set the confirmation message
+
+    $confirmation_message ='Thank you for your message. We will get back to you soon.';
+    if (  get_plugin_options('contact_plugin_message') ) {
+        $confirmation_message = get_plugin_options('contact_plugin_message');
+        
+        $confirmation_message = str_replace('{name}', $params['name'], $confirmation_message);
+    }
 
     return new WP_REST_Response(array(
         'status' => 'success',
-        'message' => 'Form submitted successfully',
+        'message' => $confirmation_message,
     ), 200);
 }
