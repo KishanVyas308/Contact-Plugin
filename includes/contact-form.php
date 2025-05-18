@@ -6,6 +6,65 @@ add_action('rest_api_init', 'create_rest_endpoint');
 
 add_action('init', 'create_submission_page');
 
+add_action('add_meta_boxes', 'create_meta_box');
+
+add_filter('manage_submission_posts_columns', 'custom_submission_columns');
+
+add_filter('manage_submission_posts_custom_column', 'custom_submission_columns_data', 10, 2);
+
+
+function custom_submission_columns_data($column, $post_id)
+{
+    switch ($column) {
+        case 'name':
+            echo esc_html(get_post_meta($post_id, 'name', true));
+            break;
+        case 'email':
+            echo esc_html(get_post_meta($post_id, 'email', true));
+            break;
+        case 'phone':
+            echo esc_html(get_post_meta($post_id, 'phone', true));
+            break;
+        case 'message':
+            echo esc_html(get_post_meta($post_id, 'message', true));
+            break;
+    }
+}
+
+function custom_submission_columns($columns)
+{
+    $columns = array(
+        'cb' => '<input type="checkbox" />',
+        'name' => __('Name', 'contact-plugin'),
+        'email' => __('Email', 'contact-plugin'),
+        'phone' => __('Phone', 'contact-plugin'),
+        'message' => __('Message', 'contact-plugin'),
+        'date' => __('Date', 'contact-plugin'),
+    );
+
+    return $columns;
+}
+
+function create_meta_box()
+{
+    add_meta_box(
+       'custom_contact_form', 'submission', 'display_submission', 'submission',
+    );
+}
+
+function display_submission($post)
+{
+    $name = get_post_meta($post->ID, 'name', true);
+    $email = get_post_meta($post->ID, 'email', true);
+    $phone = get_post_meta($post->ID, 'phone', true);
+    $message = get_post_meta($post->ID, 'message', true);
+
+    echo "<h2>Submission Details</h2>";
+    echo "<p><strong>Name:</strong> " . esc_html($name) . "</p>";
+    echo "<p><strong>Email:</strong> " . esc_html($email) . "</p>";
+    echo "<p><strong>Phone:</strong> " . esc_html($phone) . "</p>";
+    echo "<p><strong>Message:</strong><br>" . nl2br(esc_html($message)) . "</p>";
+}
 
 
 function create_submission_page()
@@ -18,12 +77,15 @@ function create_submission_page()
             'name' => 'Submissions',
             'singular_name' => 'Submission',
         ],
-        // 'capabilities' => [
-        //     'create_posts' => 'do_not_allow', 
-        // ],
-        'supports' => [
-            'custom-fields',
+        'capabilities' => [
+            'create_posts' => 'do_not_allow', 
         ],
+        // 'supports' => [
+        //     'custom-fields',
+        // ],
+        'capability_type' => 'post',
+        'map_meta_cap' => true,
+
 
     ];
 

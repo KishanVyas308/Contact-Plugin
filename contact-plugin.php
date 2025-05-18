@@ -6,7 +6,7 @@
  * Description: A simple contact form plugin
  * Version: 1.0.0
  * Author: Kishan Vyas
- * Text Domain: contact-form
+ * Text Domain: contact-plugin
  */
 
 
