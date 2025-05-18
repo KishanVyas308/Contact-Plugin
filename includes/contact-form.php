@@ -4,6 +4,33 @@ add_shortcode('contact', 'show_contact_form');
 
 add_action('rest_api_init', 'create_rest_endpoint');
 
+add_action('init', 'create_submission_page');
+
+
+
+function create_submission_page()
+{
+    $args = [
+
+        'public' => true,
+        'has_archive' => true,
+        'labels' => [
+            'name' => 'Submissions',
+            'singular_name' => 'Submission',
+        ],
+        // 'capabilities' => [
+        //     'create_posts' => 'do_not_allow', 
+        // ],
+        'supports' => [
+            'custom-fields',
+        ],
+
+    ];
+
+
+    register_post_type('submission', $args);
+}
+
 function show_contact_form()
 {
     include MY_PLUGIN_PATH . '/includes/templates/contact-form.php';
@@ -48,6 +75,22 @@ function handle_enquiry($request)
     $message .= "<p><strong>Phone:</strong> " . esc_html($params['phone']) . "</p>";
     $message .= "<p><strong>Message:</strong><br>" . nl2br(esc_html($params['message'])) . "</p>";
     
+
+    // Create a new post of type 'submission'
+    $post_data = array(
+        'post_title' => 'Submission from ' . $params['name'],
+        'post_content' => $message,
+        'post_status' => 'publish',
+        'post_type' => 'submission',
+    );
+
+    // Insert the post into the database
+    $post_id = wp_insert_post($post_data);
+
+    add_post_meta($post_id, 'name', $params['name']);
+    add_post_meta($post_id, 'email', $params['email']);
+    add_post_meta($post_id, 'phone', $params['phone']);
+    add_post_meta($post_id, 'message', $params['message']);
 
     // Send the email
     wp_mail($admin_email, $subject, $message, $header);
